@@ -4,6 +4,8 @@
     "description": "Trivia chatbot with a heart of gold.",
     "main": "built/index.js",
     "scripts": {
+        "postinstall": "npm run build",
+        "clean": "npx rimraf built",
         "start": "node index.js",
         "build": "tsc",
         "build:start": "npm run build && npm run start",
