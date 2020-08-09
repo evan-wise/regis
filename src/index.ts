@@ -1,5 +1,5 @@
-import { promises as fs } from 'fs';
-import Discord = require('discord.js');
+const fs = require('fs').promises;
+const Discord = require('discord.js');
 
 // States for bootleg state machine below.
 const states = [
