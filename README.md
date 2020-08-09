@@ -18,6 +18,7 @@ Copy auth.json.example and name it `auth.json` on root with the actual token val
 * flush out some actual trivia game mechanisms
   * text based
   * images
+  * question/answer timer (don't accept answers after a certain amount of time)
 * CI/CD github -> discord integrations or something
 * have fun!
 * ~~add typescript~~
