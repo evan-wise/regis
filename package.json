@@ -1,15 +1,23 @@
 {
-  "name": "regis",
-  "version": "0.0.0",
-  "description": "Trivia chatbot with a heart of gold.",
-  "main": "index.js",
-  "scripts": {
-    "start": "node index.js",
-    "test": "npm test"
-  },
-  "author": "Evan Wise",
-  "license": "Apache-2.0",
-  "dependencies": {
-    "discord.js": "^12.2.0"
-  }
+    "name": "regis",
+    "version": "0.0.1",
+    "description": "Trivia chatbot with a heart of gold.",
+    "main": "built/index.js",
+    "scripts": {
+        "postinstall": "npm run build",
+        "clean": "npx rimraf built",
+        "start": "node index.js",
+        "build": "tsc",
+        "build:start": "npm run build && npm run start",
+        "test": "npm test"
+    },
+    "author": "Evan Wise",
+    "license": "Apache-2.0",
+    "dependencies": {
+        "@types/node": "^14.0.27",
+        "discord.js": "^12.2.0"
+    },
+    "devDependencies": {
+        "typescript": "^3.9.7"
+    }
 }
