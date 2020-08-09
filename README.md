@@ -8,10 +8,16 @@ Copy auth.json.example and name it `auth.json` on root with the actual token val
 
 ## TODOs
 
-* ~~~add typescript~~~
 * get some persistence up in here
   * add some knex migration up and down scripts for initial db schema
-* make a trivia member sheduler
-  * make the schedule stuff interactive via 
+* host sheduler
+  * make the schedule stuff interactive via discord
+* trivia topic goodness
+* scorekeeper
+  * handle random bonus points
 * flush out some actual trivia game mechanisms
+  * text based
+  * images
+* CI/CD github -> discord integrations or something
 * have fun!
+* ~~add typescript~~
