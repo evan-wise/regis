@@ -3,24 +3,31 @@ import {
     Client as DiscordClient,
     Message 
 } from 'discord.js';
-import { processTrivia } from 'trivia';
+import { processTrivia } from './trivia';
+import { AuthLoader } from './config/auth.loader';
 
 // Use these to track user data for this proof of concept. :)
 global.userStateMap = new Map();
 global.userQuestionMap = new Map();
 global.userNumCorrectMap = new Map();
 
-// Main body, async so we can use await.
-const main = async() => {
-    console.log('starting up');
-    // Create client object.
-    const client = new DiscordClient();
+async function nextMessage(client) {
+    return new Promise<Message>((resolve, reject) => {
+        client.once('message', msg => resolve(msg));
+        client.once('error', err => reject(err));
+    });
+}
 
-    // Attach event listeners
-    client.on('message', async (msg: Message) => {
+async function* messages(client) {
+    yield await nextMessage(client);
+}
+
+async function handleMessages(client) {
+    // Loop over all messages
+    for await (const msg of messages(client) ) {
         // While we are testing, let's just ignore channels other than the bot playground and DMs.
         if (
-            msg.channel.hasOwnProperty('name') && 
+            msg.channel.hasOwnProperty('name') &&
             (msg.channel as any).name !== 'bot-playground' &&
             msg.channel.type !== 'dm'
         ) {
@@ -37,14 +44,22 @@ const main = async() => {
 
         // Set up bootleg state machine and process input.
         await processTrivia(msg, tokens);
-        
-    });
+    }
+}
 
-    // Read token from file, DON'T CHECK IT IN!
-    const authRaw = await fs.readFile('auth.json', 'utf-8');
-    const auth = JSON.parse(authRaw);
-    await client.login(auth.botUserToken);
-    console.log('authenticated');
+// Main body, async so we can use await.
+const main = async() => {
+    console.log('starting up');
+    // Create client object.
+    const client = new DiscordClient();
+    // Load authentication related config.
+    const auth = await AuthLoader.load();
+    console.log('regis found the keys')
+    // Login with the user.
+    const value = await client.login(auth.discord.botUserToken);
+    console.log('authenticated discord bot user');
+    console.log('regis is listening...')
+    await handleMessages(client);
 };
 
-main().then(() => console.log('regis lives'), (err) => console.log(err));
+main().then(() => console.log('regis lives'), (err) => console.error(err));

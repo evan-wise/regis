@@ -1,3 +1,8 @@
 {
-    "botUserToken": "replace me with the proper token"
+  "discord": {
+    "token": "replace me with the proper token"
+  },
+  "postgres": {
+    "connectionString": "replace me with a connection string"
+  }
 }
