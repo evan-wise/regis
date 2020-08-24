@@ -15,9 +15,13 @@ export class League extends Model {
       type: new DataTypes.STRING,
       allowNull: false,
     },
-    name: {
+    guildName: {
       type: new DataTypes.STRING,
       allowNull: false,
     },
+    leagueName: {
+      type: new DataTypes.STRING,
+      allowNull: true
+    }
   }
 }
