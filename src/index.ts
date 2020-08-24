@@ -1,30 +1,32 @@
-import { promises as fs } from 'fs';
 import {
     Client as DiscordClient,
-    Message 
+    Message,
+    Client
 } from 'discord.js';
+import { Sequelize } from 'sequelize';
 import { processTrivia } from './trivia';
-import { AuthLoader } from './config/auth.loader';
+import { Auth } from './config/auth';
+import { initModels } from './models';
+import { once } from 'events';
 
 // Use these to track user data for this proof of concept. :)
 global.userStateMap = new Map();
 global.userQuestionMap = new Map();
 global.userNumCorrectMap = new Map();
 
-async function nextMessage(client) {
-    return new Promise<Message>((resolve, reject) => {
-        client.once('message', msg => resolve(msg));
-        client.once('error', err => reject(err));
-    });
+async function nextMessage(client: Client): Promise<Message> {
+    return once(client, 'message').then(([message]) => message);
 }
 
-async function* messages(client) {
-    yield await nextMessage(client);
+async function* getMessages(client: Client) {
+    while (true) {
+        yield await nextMessage(client);
+    }
 }
 
 async function handleMessages(client) {
     // Loop over all messages
-    for await (const msg of messages(client) ) {
+    for await (const msg of getMessages(client) ) {
         // While we are testing, let's just ignore channels other than the bot playground and DMs.
         if (
             msg.channel.hasOwnProperty('name') &&
@@ -48,18 +50,23 @@ async function handleMessages(client) {
 }
 
 // Main body, async so we can use await.
-const main = async() => {
+(async() => {
     console.log('starting up');
-    // Create client object.
-    const client = new DiscordClient();
-    // Load authentication related config.
-    const auth = await AuthLoader.load();
+
+    const auth = await Auth.load();
     console.log('regis found the keys')
-    // Login with the user.
-    const value = await client.login(auth.discord.botUserToken);
+
+    const sequelize = new Sequelize(auth.postgres.connectionString);
+    await sequelize.authenticate();
+    console.log('authenticated database connection');
+    initModels(sequelize); // Perform set up for model data types.
+    await sequelize.sync({ force: true });
+    console.log('synchronized database schema');
+
+    const client = new DiscordClient();
+    await client.login(auth.discord.botUserToken); // Login with the user.
     console.log('authenticated discord bot user');
     console.log('regis is listening...')
-    await handleMessages(client);
-};
 
-main().then(() => console.log('regis lives'), (err) => console.error(err));
+    await handleMessages(client);
+})();

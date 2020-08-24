@@ -3,6 +3,6 @@
     "token": "replace me with the proper token"
   },
   "postgres": {
-    "connectionString": "replace me with a connection string"
+    "connectionString": "postgres://user:pass@example.com:5432/dbname"
   }
 }
