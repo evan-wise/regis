@@ -6,6 +6,10 @@ Trivia chatbot with a heart of gold.
 
 Copy auth.json.example and name it `auth.json` on root with the actual token value.
 
+NOTE: DON'T CHECK IT IN!
+
+Seriously, it's a massive security hole!
+
 ## TODOs
 
 * get some persistence up in here

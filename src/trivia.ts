@@ -2,18 +2,18 @@ import { Message } from "discord.js";
 import { Question } from './types/question';
 
 // Handle printing different question types.
-const handleQuestion = (question: Question, msg: Message) => {
+const handleQuestion = async (question: Question, msg: Message) => {
     switch (question.type) {
         case 'multiple-choice':
             const letters = question.options.map((_, i) => String.fromCharCode(97 + i));
             const displayOptions = question.options.map((o, i) => `(${letters[i]}) ${o}`);
-            msg.reply(`(Multiple Choice) ${question.text}\n${displayOptions.join(', ')}`);
+            await msg.reply(`(Multiple Choice) ${question.text}\n${displayOptions.join(', ')}`);
             break;
         case 'true-false':
-            msg.reply(`(True or False) ${question.text}`);
+            await msg.reply(`(True or False) ${question.text}`);
             break;
         case 'short-answer':
-            msg.reply(`(Short Answer) ${question.text}`);
+            await msg.reply(`(Short Answer) ${question.text}`);
             break;
     }
 };
@@ -57,12 +57,12 @@ export const processTrivia = async (msg: Message, tokens: string[]) => {
     const question = questions[questionNum];
     if (!global.userStateMap.has(msg.author.id) || state === 'BEFORE_QUIZ') {
         if (tokens.indexOf('start') > 0) {
-            msg.reply('Okay bud, starting up trivia...');
+            await msg.reply('Okay bud, starting up trivia...');
             global.userStateMap.set(msg.author.id, 'INSIDE_QUIZ');
             global.userQuestionMap.set(msg.author.id, 0);
-            handleQuestion(question, msg);
+            await handleQuestion(question, msg);
         } else {
-            msg.reply('Not sure what you mean there, chief.');
+            await msg.reply('Not sure what you mean there, chief.');
         }
     } else if (state === 'INSIDE_QUIZ') {
         if (handleAnswer(question, tokens)) {
@@ -71,22 +71,22 @@ export const processTrivia = async (msg: Message, tokens: string[]) => {
             } else {
                 global.userNumCorrectMap.set(msg.author.id, 1);
             }
-            msg.reply('Wait... that\'s right!');
+            await msg.reply('Wait... that\'s right!');
         } else {
-            msg.reply('git gud');
+            await msg.reply('git gud');
         }
 
         questionNum++;
 
         if (questionNum === questions.length) {
-            msg.reply(`You got ${global.userNumCorrectMap.get(msg.author.id)} out of ${questions.length} correct.`);
+            await msg.reply(`You got ${global.userNumCorrectMap.get(msg.author.id)} out of ${questions.length} correct.`);
             global.userNumCorrectMap.set(msg.author.id, 0);
             global.userStateMap.set(msg.author.id, 'BEFORE_QUIZ');
             global.userQuestionMap.set(msg.author.id, 0);
         } else {
             global.userQuestionMap.set(msg.author.id, questionNum);
-            msg.reply('Next question...');
-            handleQuestion(questions[questionNum], msg);
+            await msg.reply('Next question...');
+            await handleQuestion(questions[questionNum], msg);
         }
     }
 }
