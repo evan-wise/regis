@@ -2,10 +2,10 @@ import {
     Client as DiscordClient,
     Message,
 } from 'discord.js';
-import { Sequelize } from 'sequelize';
+import { Sequelize, Op } from 'sequelize';
 import { processTrivia } from './trivia';
 import { Auth } from './config/auth';
-import { initModels, League } from './models';
+import { initModels, League, Game } from './models';
 import { once } from 'events';
 
 // Use these to track user data for this proof of concept. :)
@@ -53,31 +53,69 @@ async function setupLeagues(client: DiscordClient) {
     const leagues = await League.findAll();
     const guilds = Array.from(client.guilds.cache.values())
         .filter(g => !leagues.find(l => l.discordId == g.id));
-    await Promise.all(guilds.map(g => g.fetch()))
-    const data = guilds.map(g => ({ discordId: g.id, guildName: g.name }));
-    await League.bulkCreate(data);
+    if (guilds.length > 0) {
+        await Promise.all(guilds.map(g => g.fetch()))
+        const data = guilds.map(g => ({ discordId: g.id, guildName: g.name }));
+        return await League.bulkCreate(data);
+    } else {
+        return leagues;
+    }
+}
+
+// Similar, proof of concept.
+async function scheduleGameThisWeek(league: League) {
+    const now = new Date();
+    const sunday = new Date();
+    const saturday = new Date();
+    sunday.setDate(now.getDate() - now.getDay());
+    saturday.setDate(now.getDate() + (6 - now.getDay()));
+
+    const game = await Game.findOne({
+        where: {
+            LeagueId: league.id,
+            scheduledStart: { [Op.between]: [sunday, saturday] }
+        }
+    });
+
+    if (!game) {
+        const scheduledStart = new Date();
+        scheduledStart.setDate(now.getDate() + league.weekDay - now.getDay());
+        scheduledStart.setHours(19, 0, 0);
+        await Game.create({ scheduledStart });
+    }
 }
 
 // Main body, async so we can use await.
 (async() => {
-    console.log('starting up');
+    console.log('starting up...');
 
+    // Load config files.
     const auth = await Auth.load();
-    console.log('regis found the keys')
+    console.log('regis found the keys...')
 
+    // Create database connection.
     const sequelize = new Sequelize(auth.postgres.connectionString);
     await sequelize.authenticate();
-    console.log('authenticated database connection');
-    initModels(sequelize); // Perform set up for model data types.
-    await sequelize.sync({ force: true });
-    console.log('synchronized database schema');
+    console.log('authenticated database connection!');
 
+    // Perform setup for models and database tables.
+    initModels(sequelize);
+    await sequelize.sync({ force: true }); // Just for proof of concept, in production this will be done through migrations.
+    console.log('synchronized database schema!');
+
+    // Create discord client and log in.
     const client = new DiscordClient();
-    await client.login(auth.discord.botUserToken); // Login with the user.
+    await client.login(auth.discord.botUserToken);
     console.log('authenticated discord bot user');
     console.log('regis is listening...')
-    await setupLeagues(client);
-    console.log('set up leagues')
 
+    // Create data for leagues and games.
+    const leagues = await setupLeagues(client);
+    console.log('set up leagues')
+    for (const league of leagues) {
+        await scheduleGameThisWeek(league);
+    }
+
+    // Handle incoming messages.
     await handleMessages(client);
 })();

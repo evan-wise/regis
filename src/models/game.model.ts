@@ -13,15 +13,15 @@ export class Game extends Model {
       primaryKey: true,
     },
     scheduledStart: {
-      type: new DataTypes.DATE,
+      type: DataTypes.DATE,
       allowNull: false,
     },
     start: {
-      type: new DataTypes.DATE,
+      type: DataTypes.DATE,
       allowNull: true,
     },
     end: {
-      type: new DataTypes.DATE,
+      type: DataTypes.DATE,
       allowNull: true,
     },
   }

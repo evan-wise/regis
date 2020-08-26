@@ -13,15 +13,15 @@ export class Player extends Model {
       primaryKey: true,
     },
     discordId: {
-      type: new DataTypes.STRING,
+      type: DataTypes.STRING,
       allowNull: false,
     },
     username: {
-      type: new DataTypes.STRING,
+      type: DataTypes.STRING,
       allowNull: false,
     },
     tag: {
-      type: new DataTypes.STRING,
+      type: DataTypes.STRING,
       allowNull: false,
     },
   }

@@ -3,7 +3,9 @@ import { Model, DataTypes } from 'sequelize';
 export class League extends Model {
   id: number;
   discordId: string;
-  name: string;
+  guildName: string;
+  leagueName: string;
+  weekDay: number;
 
   static columns = {
     id: {
@@ -12,16 +14,20 @@ export class League extends Model {
       primaryKey: true,
     },
     discordId: {
-      type: new DataTypes.STRING,
+      type: DataTypes.STRING,
       allowNull: false,
     },
     guildName: {
-      type: new DataTypes.STRING,
+      type: DataTypes.STRING,
       allowNull: false,
     },
     leagueName: {
-      type: new DataTypes.STRING,
+      type: DataTypes.STRING,
       allowNull: true
+    },
+    weekDay: {
+      type: DataTypes.INTEGER,
+      defaultValue: 4
     }
   }
 }
