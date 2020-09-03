@@ -23,7 +23,7 @@ Seriously, it's a massive security hole!
 
 ## Troubleshooting
 
-* If the terminal/console is blowing up you may need to run `npm run clean:install` which will delete dist and node_modules, run npm i, and then build the project.
+* If the terminal/console is blowing up you may need to run `npm run clean:install` which will delete dist and node_modules, run npm i, and then build the project. If its still not running after that, manually run `tsc` from root and try again.
 * Make sure your dev postgres db is running on your machine when you try and run locally.
 
 ## TODOs
