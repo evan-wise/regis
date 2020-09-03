@@ -6,6 +6,9 @@
     "scripts": {
         "postinstall": "npm run build",
         "clean": "npx rimraf built",
+        "preclean:install": "npx rimraf node_modules built",
+        "clean:install": "npm install",
+        "postclean:install": "tsc",
         "start": "node built/index.js",
         "build": "tsc",
         "build:start": "npm run build && npm run start",
